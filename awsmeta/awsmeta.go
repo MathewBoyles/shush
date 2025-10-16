@@ -12,7 +12,7 @@ func GetMetaData(path string) (contents []byte, err error) {
 	url := "http://169.254.169.254/latest/meta-data/" + path
 
 	req, _ := http.NewRequest("GET", url, nil)
-	if meatadataToken, _ := GetMetadataToken(); meatadataToken != "" {
+	if meatadataToken, _ := getMetaDataToken(); meatadataToken != "" {
 		req.Header.Set("X-aws-ec2-metadata-token", meatadataToken)
 	}
 
@@ -59,8 +59,8 @@ func GetRegion() string {
 	return string(az[:len(az)-1])
 }
 
-// GetMetadataToken ... get a metadata token for IMDSv2
-func GetMetadataToken() (token string, err error) {
+// getMetaDataToken ... get a metadata token for IMDSv2
+func getMetaDataToken() (token string, err error) {
 	url := "http://169.254.169.254/latest/api/token"
 
 	req, _ := http.NewRequest("PUT", url, nil)
