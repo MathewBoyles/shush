@@ -9,9 +9,14 @@ import (
 
 // GetMetaData ... fetch AWS meta-data.
 func GetMetaData(path string) (contents []byte, err error) {
+	meatadataToken, _ := GetMetadataToken()
 	url := "http://169.254.169.254/latest/meta-data/" + path
 
 	req, _ := http.NewRequest("GET", url, nil)
+	if meatadataToken != "" {
+		req.Header.Set("X-aws-ec2-metadata-token", meatadataToken)
+	}
+
 	client := http.Client{
 		Timeout: time.Millisecond * 100,
 	}
@@ -53,4 +58,36 @@ func GetRegion() string {
 
 	//returns us-west-2a, just return us-west-2
 	return string(az[:len(az)-1])
+}
+
+// GetMetadataToken ... get a metadata token for IMDSv2
+func GetMetadataToken() (token string, err error) {
+	url := "http://169.254.169.254/latest/api/token"
+
+	req, _ := http.NewRequest("PUT", url, nil)
+	req.Header.Set("X-aws-ec2-metadata-token-ttl-seconds", "5")
+
+	client := http.Client{
+		Timeout: time.Millisecond * 100,
+	}
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		err = fmt.Errorf("awsmeta: code %d returned for url %s", resp.StatusCode, url)
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return
+	}
+
+	return string(body), err
 }
