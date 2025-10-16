@@ -9,11 +9,10 @@ import (
 
 // GetMetaData ... fetch AWS meta-data.
 func GetMetaData(path string) (contents []byte, err error) {
-	meatadataToken, _ := GetMetadataToken()
 	url := "http://169.254.169.254/latest/meta-data/" + path
 
 	req, _ := http.NewRequest("GET", url, nil)
-	if meatadataToken != "" {
+	if meatadataToken, _ := GetMetadataToken(); meatadataToken != "" {
 		req.Header.Set("X-aws-ec2-metadata-token", meatadataToken)
 	}
 
