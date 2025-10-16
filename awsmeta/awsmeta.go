@@ -12,8 +12,8 @@ func GetMetaData(path string) (contents []byte, err error) {
 	url := "http://169.254.169.254/latest/meta-data/" + path
 
 	req, _ := http.NewRequest("GET", url, nil)
-	if meatadataToken, _ := getMetaDataToken(); meatadataToken != "" {
-		req.Header.Set("X-aws-ec2-metadata-token", meatadataToken)
+	if metadataToken, _ := getMetaDataToken(); metadataToken != "" {
+		req.Header.Set("X-aws-ec2-metadata-token", metadataToken)
 	}
 
 	client := http.Client{
